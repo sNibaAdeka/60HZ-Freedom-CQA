@@ -1,0 +1,7 @@
+[{"dialog_id":"chat_en_003","role":"customer","message":"Hi, I want to buy US stocks, which tariff is better for me?"},
+{"dialog_id":"chat_en_003","role":"agent","message":"Hello! This is Daniel from Freedom support. How much do you plan to invest and how often will you trade?"},
+{"dialog_id":"chat_en_003","role":"customer","message":"About $2000, a few trades per month"},
+{"dialog_id":"chat_en_003","role":"agent","message":"Then the Standard tariff fits: 0.12% + $1.2 per order. You can switch it in the app under Profile > Tariffs."},
+{"dialog_id":"chat_en_003","role":"agent","message":"Is there anything else I can help you with?"},
+{"dialog_id":"chat_en_003","role":"customer","message":"No, thanks"},
+{"dialog_id":"chat_en_003","role":"agent","message":"Thank you for contacting us, have a great day!"}]

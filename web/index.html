@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freedom CQA</title>
+<style>
+:root{
+  --bg:#f4f6f5; --surface:#ffffff; --ink:#14201b; --muted:#5b6b64; --line:#dfe6e2;
+  --brand:#1f9d55; --brand-ink:#0f6b38; --brand-soft:#e6f5ec;
+  --no:#c62828; --no-soft:#fdecec; --partial:#b26a00; --partial-soft:#fff4e0; --na:#6b7280; --na-soft:#eef0f2;
+  --hl:#fff6c2; --focus:#0b57d0;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,select,input,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 12px;min-height:36px}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.row:focus-visible,.item:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+header{display:flex;align-items:center;gap:16px;padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.2px}
+.logo i{width:22px;height:22px;border-radius:6px;background:var(--brand);display:inline-block}
+.meta{color:var(--muted);font-size:12px}
+.spacer{flex:1}
+.kpis{display:flex;gap:14px}
+.kpi{font-size:12px;color:var(--muted)} .kpi b{display:block;font-size:18px;color:var(--ink)}
+main{display:grid;grid-template-columns:330px 1fr 440px;gap:12px;padding:12px;height:calc(100vh - 62px)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.scroll{overflow:auto;flex:1;min-height:0}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.filters input{flex:1 1 100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.filters select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.row{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.row:hover{background:#fafcfb} .row.active{background:var(--brand-soft)}
+.row .id{font-weight:600} .row .pv{grid-column:1/-1;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tags{display:flex;gap:4px;flex-wrap:wrap;grid-column:1/-1}
+.tag{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--na-soft);color:var(--na)}
+.tag.warn{background:var(--partial-soft);color:var(--partial)} .tag.bad{background:var(--no-soft);color:var(--no)} .tag.ok{background:var(--brand-soft);color:var(--brand-ink)}
+.score{font-weight:800;font-size:16px;text-align:right}
+.s-good{color:var(--brand-ink)} .s-mid{color:var(--partial)} .s-bad{color:var(--no)}
+.transcript{padding:12px 16px}
+.turn{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:8px 10px;border-radius:10px;margin-bottom:6px;scroll-margin:80px}
+.turn .n{color:var(--muted);font-size:12px;text-align:right;padding-top:2px}
+.turn .who{font-size:11px;font-weight:700;letter-spacing:.4px;color:var(--muted)}
+.turn.OPERATOR{background:#f1f8f4} .turn.CLIENT{background:#f6f7fb} .turn.BOT{background:#f7f7f7}
+.turn.hl{background:var(--hl);box-shadow:inset 3px 0 0 var(--partial)}
+.turn.ev{box-shadow:inset 3px 0 0 var(--brand)}
+.summary{padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfcfb}
+.summary .big{font-size:28px;font-weight:800}
+.summary .line{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.reasons{font-size:12px;color:var(--partial);margin-top:6px}
+.item{border-bottom:1px solid var(--line);padding:10px 14px;cursor:pointer}
+.item:hover{background:#fafcfb} .item.sel{background:var(--brand-soft)}
+.item .top{display:flex;gap:8px;align-items:flex-start}
+.item .t{flex:1;font-weight:600}
+.chip{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.v-yes{background:var(--brand-soft);color:var(--brand-ink)} .v-no{background:var(--no-soft);color:var(--no)}
+.v-partial{background:var(--partial-soft);color:var(--partial)} .v-na{background:var(--na-soft);color:var(--na)}
+.item .ex{color:var(--ink);margin-top:4px}
+.item .sub{color:var(--muted);font-size:12px;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.ovr{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.ovr button{padding:4px 10px;min-height:32px;font-size:12px}
+.ovr button.on{outline:2px solid var(--ink)}
+.ovr input{flex:1;min-width:140px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.crit{color:var(--no);font-size:11px;font-weight:700}
+.empty{padding:40px;color:var(--muted);text-align:center}
+.bar{height:4px;background:var(--line)} .bar i{display:block;height:100%;background:var(--brand);width:0}
+dialog{border:1px solid var(--line);border-radius:12px;padding:18px;max-width:720px;width:92vw}
+dialog textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:8px;padding:10px}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+audio{width:100%}
+@media (max-width:1100px){main{grid-template-columns:1fr;height:auto}.panel{max-height:none}}
+@media (prefers-reduced-motion:no-preference){.row,.item,.turn{transition:background .15s}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i aria-hidden="true"></i>Freedom CQA</div>
+  <div class="meta" id="meta">загрузка…</div>
+  <div class="spacer"></div>
+  <div class="kpis" id="kpis"></div>
+  <button id="btnNew" type="button">+ Диалог</button>
+  <button id="btnExport" type="button">Экспорт CSV</button>
+  <button id="btnAll" class="primary" type="button">Оценить все</button>
+</header>
+<div class="bar" aria-hidden="true"><i id="prog"></i></div>
+<main>
+  <section class="panel" aria-label="Список диалогов">
+    <h2>Диалоги <span class="meta" id="count"></span></h2>
+    <div class="filters">
+      <label class="sr" for="q" hidden>Поиск</label>
+      <input id="q" placeholder="Поиск по ID или тексту" aria-label="Поиск">
+      <select id="fStatus" aria-label="Фильтр статуса">
+        <option value="">Все</option><option value="review">Требуют проверки</option><option value="critical">Критические</option>
+        <option value="todo">Не оценены</option><option value="done">Проверены</option>
+      </select>
+      <select id="fChannel" aria-label="Канал"><option value="">Чат+звонок</option><option value="chat">Чаты</option><option value="call">Звонки</option></select>
+      <select id="fLang" aria-label="Язык"><option value="">Все языки</option><option value="ru">RU</option><option value="kk">KZ</option><option value="en">EN</option><option value="mixed">Смешанный</option></select>
+    </div>
+    <div class="scroll" id="list"></div>
+  </section>
+
+  <section class="panel" aria-label="Диалог">
+    <h2 id="dTitle">Диалог</h2>
+    <div id="dSummary"></div>
+    <div class="scroll transcript" id="transcript"><div class="empty">Выберите диалог слева</div></div>
+  </section>
+
+  <section class="panel" aria-label="Чек-лист">
+    <h2>Чек-лист <span class="spacer"></span>
+      <button id="btnEval" type="button" style="text-transform:none;letter-spacing:0">Переоценить</button>
+      <button id="btnApprove" class="primary" type="button" style="text-transform:none;letter-spacing:0">Подтвердить</button>
+    </h2>
+    <div class="scroll" id="items"><div class="empty">—</div></div>
+  </section>
+</main>
+
+<dialog id="dlgNew" aria-label="Новый диалог">
+  <h3 style="margin-top:0">Оценить новый диалог</h3>
+  <p class="meta">Вставьте транскрипт построчно: <code>Оператор: …</code> / <code>Клиент: …</code> (или JSON).</p>
+  <textarea id="newText" aria-label="Текст диалога"></textarea>
+  <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+    <select id="newChannel" aria-label="Канал"><option value="chat">Чат</option><option value="call">Звонок</option></select>
+    <button type="button" onclick="dlgNew.close()">Отмена</button>
+    <button type="button" class="primary" id="btnNewGo">Оценить</button>
+  </div>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const V = {yes:'Да', no:'Нет', partial:'Частично', na:'Н/П'};
+let rows = [], cur = null, curData = null, selItem = null;
+
+async function api(path, opt={}) {
+  const r = await fetch(path, {headers:{'Content-Type':'application/json'}, ...opt});
+  if (!r.ok) { const t = await r.text(); alert('Ошибка: ' + t); throw new Error(t); }
+  return r.json();
+}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const scls = s => s == null ? '' : s >= 85 ? 's-good' : s >= 60 ? 's-mid' : 's-bad';
+
+async function loadMeta() {
+  const m = await api('/api/meta');
+  $('#meta').textContent = `${m.n_dialogues} диалогов · ${m.checklist.length} пунктов · ${m.provider}:${m.model}` + (m.guidance ? ' · калибровка ✓' : '');
+}
+
+async function loadList() {
+  rows = await api('/api/dialogues');
+  renderList(); renderKpis();
+}
+
+function renderKpis() {
+  const ev = rows.filter(r => r.evaluated);
+  const avg = ev.length ? ev.reduce((a, r) => a + (r.final_score ?? 0), 0) / ev.length : null;
+  const k = [
+    ['Оценено', `${ev.length}/${rows.length}`],
+    ['Средний балл', avg == null ? '—' : avg.toFixed(1)],
+    ['На проверку', rows.filter(r => r.needs_review && !r.status).length],
+    ['Критические', rows.filter(r => r.critical_fail).length],
+  ];
+  $('#kpis').innerHTML = k.map(([a, b]) => `<div class="kpi">${a}<b>${b}</b></div>`).join('');
+}
+
+function renderList() {
+  const q = $('#q').value.toLowerCase(), st = $('#fStatus').value, ch = $('#fChannel').value, lg = $('#fLang').value;
+  const f = rows.filter(r => (!q || (r.id + ' ' + r.preview + ' ' + r.issue).toLowerCase().includes(q))
+    && (!ch || r.channel === ch) && (!lg || r.lang === lg)
+    && (!st || (st === 'review' && r.needs_review && !r.status) || (st === 'critical' && r.critical_fail) || (st === 'todo' && !r.evaluated) || (st === 'done' && r.status)));
+  $('#count').textContent = `${f.length}`;
+  $('#list').innerHTML = f.map(r => `
+    <div class="row ${r.id === cur ? 'active' : ''}" tabindex="0" role="button" data-id="${esc(r.id)}">
+      <div class="id">${esc(r.id)}</div>
+      <div class="score ${scls(r.final_score)}">${r.final_score == null ? '—' : r.final_score.toFixed(0)}</div>
+      <div class="pv">${esc(r.issue ? '[' + r.issue + '] ' : '')}${esc(r.preview)}</div>
+      <div class="tags">
+        <span class="tag">${r.channel === 'call' ? 'звонок' : 'чат'}</span><span class="tag">${esc(r.lang)}</span>
+        ${r.critical_fail ? '<span class="tag bad">критично</span>' : ''}
+        ${r.needs_review && !r.status ? `<span class="tag warn">проверить (${r.n_review_reasons})</span>` : ''}
+        ${r.status ? '<span class="tag ok">проверено</span>' : ''}
+        ${r.overrides ? `<span class="tag">правок: ${r.overrides}</span>` : ''}
+        ${!r.evaluated ? '<span class="tag">не оценён</span>' : ''}
+      </div>
+    </div>`).join('') || '<div class="empty">Ничего не найдено</div>';
+  document.querySelectorAll('.row').forEach(el => {
+    el.onclick = () => openDialogue(el.dataset.id);
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDialogue(el.dataset.id); } };
+  });
+}
+
+async function openDialogue(id) {
+  cur = id; selItem = null; renderList();
+  curData = await api('/api/dialogues/' + encodeURIComponent(id));
+  if (!curData.result) { await evaluate(); return; }
+  renderDialogue();
+}
+
+function evidenceTurns() {
+  const s = new Set();
+  (curData.final?.items || []).forEach(i => i.evidence.forEach(e => s.add(e.turn)));
+  return s;
+}
+
+function renderDialogue() {
+  const d = curData.dialogue, r = curData.result, f = curData.final;
+  $('#dTitle').textContent = `${d.id} · ${d.channel === 'call' ? 'звонок' : 'чат'} · ${d.lang}`;
+  const sel = selItem ? new Set(f.items.find(i => i.id === selItem)?.evidence.map(e => e.turn) || []) : new Set();
+  const ev = evidenceTurns();
+  $('#transcript').innerHTML = (d.audio ? `<audio controls src="${d.audio}"></audio>` : '') + d.turns.map(t => `
+    <div class="turn ${t.speaker} ${sel.has(t.i) ? 'hl' : ev.has(t.i) ? 'ev' : ''}" id="turn-${t.i}">
+      <div class="n">${t.i}</div>
+      <div><div class="who">${esc(t.speaker)}${t.ts ? ' · ' + esc(t.ts) : ''}</div>${esc(t.text)}</div>
+    </div>`).join('');
+  if (r) {
+    $('#dSummary').innerHTML = `<div class="summary">
+      <div class="line"><div class="big ${scls(f.final_score)}">${f.final_score ?? '—'}</div>
+        <div><div class="meta">AI: ${r.total_score ?? '—'} · ${esc(r.provider)}:${esc(r.model)} · ${esc(r.created)}</div>
+        <div>${esc(r.summary)}</div></div></div>
+      ${r.critical_fail ? '<div class="crit">Нарушен критический пункт</div>' : ''}
+      ${r.review_reasons?.length ? `<div class="reasons">На проверку: ${esc(r.review_reasons.slice(0, 4).join('; '))}${r.review_reasons.length > 4 ? '…' : ''}</div>` : ''}
+      ${curData.review?.status ? `<div class="meta">Статус: ${esc(curData.review.status.status)} ${esc(curData.review.status.created)}</div>` : ''}
+    </div>`;
+  } else $('#dSummary').innerHTML = '';
+  renderItems();
+}
+
+function renderItems() {
+  const f = curData.final;
+  if (!f) { $('#items').innerHTML = '<div class="empty">Не оценён</div>'; return; }
+  $('#items').innerHTML = f.items.map(i => `
+    <div class="item ${selItem === i.id ? 'sel' : ''}" tabindex="0" data-id="${esc(i.id)}">
+      <div class="top">
+        <div class="t">${esc(i.id)}. ${esc(i.title)} ${i.critical ? '<span class="crit">КРИТ</span>' : ''}</div>
+        <span class="chip v-${i.final_verdict}">${V[i.final_verdict] || i.final_verdict}${i.overridden ? ' ✎' : ''}</span>
+      </div>
+      <div class="ex">${esc(i.explanation)}</div>
+      <div class="sub">
+        <span>уверенность ${Math.round(i.confidence * 100)}%</span>
+        ${i.evidence.map(e => `<a href="#turn-${e.turn}" data-turn="${e.turn}" title="${esc(e.quote)}">[${e.turn}]${e.valid ? '' : '⚠'}</a>`).join(' ')}
+        ${i.overridden ? `<span>AI: ${V[i.verdict]}</span>` : ''}
+        ${i.needs_review ? `<span style="color:var(--partial)">${esc(i.review_reasons.join(', '))}</span>` : ''}
+      </div>
+      ${selItem === i.id ? `<div class="ovr" role="group" aria-label="Ручной пересмотр">
+        ${['yes', 'partial', 'no', 'na'].map(v => `<button type="button" class="chip v-${v} ${i.final_verdict === v ? 'on' : ''}" data-v="${v}">${V[v]}</button>`).join('')}
+        <input placeholder="Комментарий ревьюера" value="${esc(i.review_comment)}" aria-label="Комментарий">
+        <button type="button" data-v="__save">Сохранить</button>
+        ${i.overridden ? '<button type="button" data-v="__reset">Сброс к AI</button>' : ''}
+      </div>` : ''}
+    </div>`).join('');
+  document.querySelectorAll('.item').forEach(el => {
+    el.onclick = e => {
+      if (e.target.closest('.ovr') || e.target.closest('a')) return;
+      selItem = selItem === el.dataset.id ? null : el.dataset.id; renderDialogue();
+      const first = curData.final.items.find(i => i.id === selItem)?.evidence[0];
+      if (first) document.getElementById('turn-' + first.turn)?.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center'});
+    };
+    el.onkeydown = e => { if (e.key === 'Enter' && e.target === el) el.click(); };
+    el.querySelectorAll('.ovr button').forEach(b => b.onclick = async () => {
+      const inp = el.querySelector('.ovr input');
+      const v = b.dataset.v;
+      const body = {item_id: el.dataset.id, comment: inp.value};
+      if (v === '__reset') body.verdict = null, body.comment = '';
+      else if (v === '__save') body.verdict = curData.final.items.find(i => i.id === el.dataset.id).final_verdict;
+      else body.verdict = v;
+      curData = await api('/api/review/' + encodeURIComponent(cur), {method: 'POST', body: JSON.stringify(body)});
+      renderDialogue(); loadList();
+    });
+  });
+  document.querySelectorAll('.item a[data-turn]').forEach(a => a.onclick = e => {
+    e.preventDefault(); document.getElementById('turn-' + a.dataset.turn)?.scrollIntoView({block: 'center'});
+    const t = document.getElementById('turn-' + a.dataset.turn); t.classList.add('hl'); setTimeout(() => t.classList.remove('hl'), 1500);
+  });
+}
+
+async function evaluate() {
+  if (!cur) return;
+  $('#items').innerHTML = '<div class="empty">Оцениваю…</div>';
+  await api('/api/evaluate/' + encodeURIComponent(cur), {method: 'POST'});
+  curData = await api('/api/dialogues/' + encodeURIComponent(cur));
+  renderDialogue(); loadList();
+}
+
+async function evaluateAll() {
+  await api('/api/evaluate_all?only_missing=true', {method: 'POST'});
+  const tick = async () => {
+    const p = await api('/api/progress');
+    $('#prog').style.width = p.total ? (100 * p.done / p.total) + '%' : '0';
+    if (p.running) { setTimeout(tick, 1500); if (p.done % 3 === 0) loadList(); }
+    else { loadList(); if (p.errors.length) alert('Ошибки: ' + p.errors.slice(0, 5).join('\n')); setTimeout(() => $('#prog').style.width = '0', 1500); }
+  };
+  tick();
+}
+
+$('#btnAll').onclick = evaluateAll;
+$('#btnEval').onclick = evaluate;
+$('#btnApprove').onclick = async () => { if (!cur) return; curData = await api('/api/review_status/' + encodeURIComponent(cur), {method: 'POST', body: JSON.stringify({status: 'approved'})}); renderDialogue(); loadList(); };
+$('#btnExport').onclick = () => location.href = '/api/export.csv';
+$('#btnNew').onclick = () => dlgNew.showModal();
+$('#btnNewGo').onclick = async () => {
+  const r = await api('/api/upload', {method: 'POST', body: JSON.stringify({text: $('#newText').value, channel: $('#newChannel').value})});
+  dlgNew.close(); $('#newText').value = ''; await loadMeta(); await loadList(); openDialogue(r.id);
+};
+['#q', '#fStatus', '#fChannel', '#fLang'].forEach(s => $(s).addEventListener('input', renderList));
+loadMeta(); loadList();
+</script>
+</body>
+</html>

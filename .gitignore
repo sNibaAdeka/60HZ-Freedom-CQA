@@ -1,0 +1,45 @@
+# --- secrets & local env ---
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.cache/
+
+# --- organizers' data & results (confidential: never publish real dialogues) ---
+data/raw/
+data/uploads/
+data/processed/
+results/
+experiments/
+reports/
+submissions/
+
+# --- team-internal harness & strategy (not part of the product) ---
+.claude/
+CLAUDE.md
+AGENTS.md
+HARNESS.md
+CASE.md
+CASE_STRATEGY.md
+CONCEPT.md
+IDEAS.md
+RESEARCH.md
+PLAN.md
+PROMPTS.md
+INSIGHTS.md
+DECISIONS.md
+STATUS.md
+src/
+app/
+pitch/
+notebooks/
+tests/test_smoke.py
+requirements.txt
+scripts/make_synth.py
+scripts/pipeline_entity.py
+scripts/run_baseline.py
+scripts/profile_data.py
+scripts/checkpoint.py
+scripts/reset_rehearsal.py
